@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "bootstrap": "^5.2.2",
+    "bootstrap-icons": "^1.9.1",
+    "dayjs": "^1.11.5",
+    "react-bootstrap": "^2.5.0",
+    "react-router": "^6.4.2",
+    "react-router-dom": "^6.4.2"
+  }
+}
