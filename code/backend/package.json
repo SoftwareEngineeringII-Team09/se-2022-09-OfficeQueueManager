@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "The Official Software Engineering II Team 9 Office Queue Manager",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SoftwareEngineeringII-Team09/se-2022-09-OfficeQueueManager.git"
+  },
+  "keywords": [
+    "Queue",
+    "Management"
+  ],
+  "author": "Team 9",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SoftwareEngineeringII-Team09/se-2022-09-OfficeQueueManager/issues"
+  },
+  "homepage": "https://github.com/SoftwareEngineeringII-Team09/se-2022-09-OfficeQueueManager#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-validator": "^6.14.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.20",
+    "sqlite3": "^5.1.2"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
+    "check-code-coverage": "^1.10.0",
+    "jest": "^27.5.1",
+    "mocha": "^9.2.2",
+    "mochawesome": "^7.1.3",
+    "mochawesome-report-generator": "^6.2.0"
+  },
+  "scripts": {
+    "integration": "mocha test --runInBand --timeout 50000 --exit",
+    "test": "jest --runInBand --coverage"
+  }
+}
