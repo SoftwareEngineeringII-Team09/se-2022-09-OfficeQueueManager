@@ -1,24 +1,29 @@
-import logo from './logo.svg';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+import { Container, Row, Spinner } from 'react-bootstrap';
+
+import NavbarComponent from './Components/NavbarComponent';
+import { DefaultView, MainView } from './Components/Views';
+
+import API from './API';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Container fluid>
+        <Row>
+          <NavbarComponent/>
+        </Row>
+        <Routes>
+          <Route path='/home' element={<MainView/>} />
+          <Route path='*' element={<DefaultView/>} />
+        </Routes>
+      </Container>
+    </BrowserRouter>
   );
 }
 
