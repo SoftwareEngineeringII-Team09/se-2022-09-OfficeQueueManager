@@ -71,7 +71,7 @@ class PersistentManager {
     });
   }
 
-  async delete(attribute_name, id, tableName) {
+  async delete(tableName, attribute_name, id) {
     return new Promise((resolve, reject) => {
       const sql =
         "DELETE FROM " + tableName + " WHERE " + attribute_name + "= ?";
@@ -164,7 +164,7 @@ class PersistentManager {
 
   async exists(tableName, parameter_name, value) {
     try {
-      let row = await this.loadOneByAttribute(parameter_name, tableName, value);
+      let row = await this.loadOneByAttribute(tableName, parameter_name, value);
       if (row) {
         return true;
       } else {
@@ -173,6 +173,22 @@ class PersistentManager {
     } catch (err) {
       return Promise.reject(err);
     }
+  }
+
+  async loadOneByAttribute(tableName, parameter_name, value) {
+    return new Promise((resolve, reject) => {
+      const sql =
+        "SELECT * FROM " + tableName + " WHERE " + parameter_name + "= ?";
+      const db = new sqlite.Database(this.dbName, (err) => {
+        if (err) reject(err);
+      });
+      db.get("PRAGMA foreign_keys = ON");
+      db.get(sql, value, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+      db.close();
+    });
   }
 }
 

@@ -10,7 +10,7 @@ class ServiceManager {
     let exists = await PersistentManager.exists(
       Service.tableName,
       "ServiceName",
-      serviceName
+      newServiceName
     );
     if (exists) {
       return Promise.reject("422 Service Already exists");
@@ -23,8 +23,8 @@ class ServiceManager {
   async updateService(SerId, newServiceName, newServiceTime) {
     let exists = await PersistentManager.exists(
       Service.tableName,
-      "ServiceName",
-      serviceName
+      "ServiceId",
+      SerId
     );
     if (!exists) {
       return Promise.reject("404 Service not exists");
@@ -44,12 +44,11 @@ class ServiceManager {
       "ServiceId",
       serId
     );
-    if (exists) {
-      return Promise.reject("422 Service Already exists");
+    if (!exists) {
+      return Promise.reject("422 No available Service found ");
     }
 
-    const s = new Service(null, newServiceName, newServiceTime);
-    return PersistentManager.store(Service.tableName, s);
+    return PersistentManager.delete(Service.tableName, "ServiceId", serId);
   }
 }
 
