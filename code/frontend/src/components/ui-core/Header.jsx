@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Container, Row, Col, Navbar, Button } from 'react-bootstrap';
+import { Container, Col, Navbar, Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -29,7 +29,6 @@ const LoggedInNav = () => {
 
     return (
         <Col className='fs-5 text-end'>
-
             {user.toUpperCase() === "MANAGER" && links.map(link =>
                 <NavLink to={link.url} className='fw-bold ms-4 text-decoration-none'
                     style={({ isActive }) => isActive ? { opacity: "100%" } : { opacity: "50%" }}>
@@ -63,17 +62,16 @@ const Header = () => {
     return (
         <Navbar fixed='top' bg='gray-light' className='p-4'>
             <Container fluid>
-                <Row className='w-100 align-items-center'>
-                    <Brand />
+                <Brand />
 
-                    {!loggedIn && <Col className='d-none d-lg-block fw-bold fs-5 text-center'>
-                        <NavLink to='/' className='text-decoration-none'>
-                            Take your ticket
-                        </NavLink>
-                    </Col>}
+                {!loggedIn && <Col className='d-none d-lg-block fw-bold fs-5 text-center'>
+                    <NavLink to='/' className='text-decoration-none'>
+                        Take your ticket
+                    </NavLink>
+                </Col>}
 
-                    {loggedIn ? <LoggedInNav /> : <NotLoggedInNav />}
-                </Row>
+                {loggedIn ? <LoggedInNav /> : <NotLoggedInNav />}
+
             </Container>
         </Navbar>
     )
