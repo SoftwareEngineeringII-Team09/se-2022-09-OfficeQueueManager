@@ -7,9 +7,11 @@ const Layout = () => {
     return (
         <Container fluid className="h-100 p-0 overflow-hidden d-flex flex-column justify-content-between">
             <Header />
-            <Row className="d-flex flex-fill align-items-center text-center">
-                <Outlet />
-            </Row>
+            <Container className="d-flex flex-fill align-items-center justify-content-center">
+                <Row>
+                    <Outlet />
+                </Row>
+            </Container>
         </Container>
     );
 }
