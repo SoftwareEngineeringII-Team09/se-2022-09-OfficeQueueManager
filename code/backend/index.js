@@ -24,9 +24,9 @@ app.use(cors({
 }));
 
 /* ROUTES */
-const exampleRouter = require('./routes/example.router');
+const ticketRouter = require('./routes/ticket.router');
 
-app.use(`${API_PREFIX}/example`, exampleRouter);
+app.use(`${API_PREFIX}/ticket`, ticketRouter);
 
 
 /* Serve requests */
