@@ -4,7 +4,7 @@ const Service = require("../dao/model/Service");
 const PersistentManager = require("../dao/PersistentManager");
 
 class ServiceManager {
-  constructor() {}
+  constructor() { }
 
   async defineService(newServiceName, newServiceTime) {
     let exists = await PersistentManager.exists(
@@ -49,6 +49,19 @@ class ServiceManager {
     }
 
     return PersistentManager.delete(Service.tableName, "ServiceId", serId);
+  }
+
+  async serviceRowByAttribute(serviceParameterName, value) {
+    let exists = await PersistentManager.exists(
+      Service.tableName,
+      serviceParameterName,
+      value
+    );
+    if (!exists) {
+      return Promise.reject("422 No available Service found ");
+    }
+
+    return PersistentManager.loadOneByAttribute(Service.tableName, serviceParameterName, value);
   }
 }
 

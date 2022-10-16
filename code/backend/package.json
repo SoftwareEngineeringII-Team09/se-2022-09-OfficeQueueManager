@@ -22,6 +22,7 @@
   "homepage": "https://github.com/SoftwareEngineeringII-Team09/se-2022-09-OfficeQueueManager#readme",
   "dependencies": {
     "cors": "^2.8.5",
+    "dayjs": "^1.11.5",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "morgan": "^1.10.0",

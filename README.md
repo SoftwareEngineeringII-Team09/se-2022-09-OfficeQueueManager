@@ -58,3 +58,21 @@ Get next customer in line for services provided by a counter
   - 422 - counterId is not valid, it should be a positive integer
   - 404 - TODO ...
   - 500 - Generic error
+
+POST `/api/v1/tickets/new`
+- **Description**: Issues a new ticket for a selected service.
+- **Request parameters**: _None_.
+- **Request body**: 
+```
+    {
+        "serviceName": "s1Name"
+    }
+```
+- **Response**: `201 Created` (success).
+- **Response body**: 
+```
+    {
+        "ticketId": 5
+    }
+```
+- **Error responses**: `503 Service Unavailable` (generic error), `422 Unprocessable entity` (validation of body failed).
