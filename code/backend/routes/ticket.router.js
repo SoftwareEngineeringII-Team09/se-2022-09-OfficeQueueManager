@@ -27,7 +27,9 @@ router.put(
             return res.status(200).json({ ticket: null });
 
         } catch (exception) {
-            return res.status(500).json({ error: 'Something went wrong, try again' });
+            const errorCode = exception.code ?? 500;
+            const errorMessage = exception.result ?? 'Something went wrong, try again';
+            return res.status(errorCode).json({ error: errorMessage });
         }
 
     }

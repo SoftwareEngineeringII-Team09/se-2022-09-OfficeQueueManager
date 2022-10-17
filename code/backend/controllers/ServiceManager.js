@@ -13,7 +13,10 @@ class ServiceManager {
       newServiceName
     );
     if (exists) {
-      return Promise.reject("422 Service Already exists");
+      return Promise.reject({
+        code: 409,
+        result: "Service Already exists"
+      });
     }
 
     const s = new Service(null, newServiceName, newServiceTime);
@@ -27,7 +30,10 @@ class ServiceManager {
       SerId
     );
     if (!exists) {
-      return Promise.reject("404 Service not exists");
+      return Promise.reject({
+        code: 404,
+        result: "Service not exists"
+      });
     }
 
     return PersistentManager.update(
@@ -45,7 +51,10 @@ class ServiceManager {
       serId
     );
     if (!exists) {
-      return Promise.reject("422 No available Service found ");
+      return Promise.reject({
+        code: 404,
+        result: "No available Service found"
+      });
     }
 
     return PersistentManager.delete(Service.tableName, "ServiceId", serId);
@@ -58,7 +67,10 @@ class ServiceManager {
       value
     );
     if (!exists) {
-      return Promise.reject("422 No available Service found ");
+      return Promise.reject({
+        code: 404,
+        result: "No available Service found"
+      });
     }
 
     return PersistentManager.loadOneByAttribute(Service.tableName, serviceParameterName, value);
