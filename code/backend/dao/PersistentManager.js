@@ -50,27 +50,6 @@ class PersistentManager {
     });
   }
 
-  loadAllRows(tableName) {
-    return new Promise((resolve, reject) => {
-      const sql = "SELECT * FROM " + tableName;
-      const db = new sqlite.Database(this.dbName, (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-      });
-      db.get("PRAGMA foreign_keys = ON");
-      db.all(sql, (err, rows) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(rows);
-      });
-      db.close();
-    });
-  }
-
   async delete(tableName, attribute_name, id) {
     return new Promise((resolve, reject) => {
       const sql =
