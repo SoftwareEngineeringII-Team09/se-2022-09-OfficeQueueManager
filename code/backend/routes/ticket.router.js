@@ -8,8 +8,8 @@ const router = express.Router();
 const dayjs = require('dayjs');
 
 /* Select next ticket for counter :counterId */
-router.get(
-    '/next/:counterId', 
+router.put(
+    '/:counterId', 
     param('counterId').isInt({ min: 1 }).toInt().withMessage('Provide a valid counter id'), 
     async (req, res) => {
         

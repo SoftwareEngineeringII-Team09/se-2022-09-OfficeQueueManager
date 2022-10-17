@@ -7,7 +7,7 @@ const cors = require('cors');
 
 const SERVER_PORT = 3001;
 const CLIENT_PORT = 3000;
-const API_PREFIX = '/api/v1';
+const API_PREFIX = '/api';
 const app = new express();
 
 
@@ -26,7 +26,7 @@ app.use(cors({
 /* ROUTES */
 const ticketRouter = require('./routes/ticket.router');
 
-app.use(`${API_PREFIX}/ticket`, ticketRouter);
+app.use(`${API_PREFIX}/tickets`, ticketRouter);
 
 
 /* Serve requests */
