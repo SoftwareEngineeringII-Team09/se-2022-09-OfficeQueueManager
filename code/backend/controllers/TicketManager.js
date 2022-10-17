@@ -18,7 +18,10 @@ class TicketManager {
       TicketId
     );
     if (!exists) {
-      return Promise.reject("404 Ticket not exists");
+      return Promise.reject({
+        code: 404,
+        result: "Ticket not exists",
+      });
     }
 
     return PersistentManager.update(

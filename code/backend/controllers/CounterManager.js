@@ -27,7 +27,10 @@ class CounterManager {
       CounterId
     );
     if (!exists) {
-      return Promise.reject("404 Counter not exists");
+      return Promise.reject({
+        code: 404,
+        result: "Counter not exists",
+      });
     }
 
     return PersistentManager.update(
@@ -45,7 +48,10 @@ class CounterManager {
       CounterId
     );
     if (!exists) {
-      return Promise.reject("422 No available Counter found ");
+      return Promise.reject({
+        code: 422,
+        result: "No available Counter found ",
+      });
     }
 
     return PersistentManager.delete(Counter.tableName, "CounterId", CounterId);
