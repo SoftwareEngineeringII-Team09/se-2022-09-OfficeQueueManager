@@ -190,6 +190,22 @@ class PersistentManager {
       db.close();
     });
   }
+
+  async loadAllByAttribute(tableName, parameter_name, value) {
+    return new Promise((resolve, reject) => {
+      const sql =
+        "SELECT * FROM " + tableName + " WHERE " + parameter_name + "= ?";
+      const db = new sqlite.Database(this.dbName, (err) => {
+        if (err) reject(err);
+      });
+      db.get("PRAGMA foreign_keys = ON");
+      db.all(sql, value, (err, row) => {
+        if (err) reject(err);
+        resolve(row);
+      });
+      db.close();
+    });
+  }
 }
 
 module.exports = new PersistentManager();
