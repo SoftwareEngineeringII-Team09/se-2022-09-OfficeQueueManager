@@ -14,7 +14,7 @@
     - TicketId
     - CreateTime
     - ServiceId
-    - Status
+    - Status(issued/closed)
     - CounterId
     
 - Table `Service`
