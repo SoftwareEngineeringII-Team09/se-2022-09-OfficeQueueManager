@@ -1,18 +1,77 @@
-import { Container, Navbar } from 'react-bootstrap';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import { useState } from 'react';
+import { Container, Col, Navbar, Button } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import { links } from '../../constants';
+
+const Brand = () => {
+    return (
+        <Col>
+            <NavLink to='/' className="text-decoration-none">
+                <Navbar.Brand>
+                    <span className='fw-black text-primary fs-1'>
+                        OQM
+                    </span>
+                </Navbar.Brand>
+            </NavLink>
+        </Col>
+    );
+}
+
+const LoggedInNav = () => {
+    const [user] = useState("manager")
+
+    const logout = (e) => {
+        e.preventDefault();
+        // ---- TODO: Add API to perform logout
+    }
+
+    return (
+        <Col className='fs-5 text-end'>
+            {user.toUpperCase() === "MANAGER" && links.map(link =>
+                <NavLink to={link.url} className='fw-bold ms-4 text-decoration-none'
+                    style={({ isActive }) => isActive ? { opacity: "100%" } : { opacity: "50%" }}>
+                    {link.icon}
+                    <span className='ms-2'>{link.label}</span>
+                </NavLink>
+            )}
+
+            <Button variant='ghost' className='p-0 fs-5 fw-bold text-primary ms-4' onClick={logout}>
+                <FontAwesomeIcon icon="fas fa-right-from-bracket" className='opacity-50' />
+                <span className='ms-2'>Logout</span>
+            </Button>
+        </Col>
+    );
+}
+
+const NotLoggedInNav = () => {
+    return (
+        <Col className='fs-5 text-end'>
+            <span className='opacity-75'>Are you an employee?</span>
+            <NavLink to='/login' className='fw-bold ms-2'>
+                Login now
+            </NavLink>
+        </Col>
+    );
+}
 
 const Header = () => {
+    const [loggedIn] = useState(false);
+
     return (
-        <Navbar bg='primary'>
+        <Navbar fixed='top' bg='gray-light' className='p-4'>
             <Container fluid>
-                <NavLink to='/home' className={({ isActive }) => isActive ? 'btn btn-primary text-decoration-none' : 'btn btn-light text-decoration-none'}>
-                    <i className="bi bi-envelope"></i>
-                    &nbsp;My study plan!
-                </NavLink>
-                <NavLink to='/login' className={({ isActive }) => isActive ? 'btn btn-primary text-decoration-none' : 'btn btn-light text-decoration-none'}>
-                    Login
-                </NavLink>
+                <Brand />
+
+                {!loggedIn && <Col className='d-none d-lg-block fw-bold fs-5 text-center'>
+                    <NavLink to='/' className='text-decoration-none'>
+                        Take your ticket
+                    </NavLink>
+                </Col>}
+
+                {loggedIn ? <LoggedInNav /> : <NotLoggedInNav />}
+
             </Container>
         </Navbar>
     )
