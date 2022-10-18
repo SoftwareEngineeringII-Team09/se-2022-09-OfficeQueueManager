@@ -1,7 +1,6 @@
 "use strict";
 
 const TicketManager = require('../controllers/TicketManager');
-const ServiceManager = require('../controllers/ServiceManager');
 const { body, param, validationResult } = require('express-validator');
 const express = require('express');
 const router = express.Router();
@@ -22,9 +21,9 @@ router.put(
 
             const counterId = req.params.counterId;
 
-            // TODO: await TicketManager.getNextTicket(counterId)
+            const ticket = await TicketManager.getNextTicket(counterId);
 
-            return res.status(200).json({ ticket: null });
+            return res.status(200).json({ ticket: ticket });
 
         } catch (exception) {
             const errorCode = exception.code ?? 500;
@@ -35,10 +34,10 @@ router.put(
     }
 );
 
-/* Issues a new ticket (returns ticketId) for the serviceName specified in the body */
+/* Issues a new ticket (returns a Ticket object) for the serviceId specified in the body */
 router.post(
-    '/new',
-    body('serviceName').isString().withMessage('Provide a valid service name'),
+    '/',
+    body('serviceId').isInt({ min: 1 }).toInt().withMessage('Provide a valid service Id'),
     async (req, res) => {
 
         try {
@@ -48,16 +47,18 @@ router.post(
             if (!errors.isEmpty())
                 return res.status(422).json({ error: errors.array()[0] });
 
-            const service = await ServiceManager.serviceRowByAttribute('ServiceName', req.body.serviceName);
             const createTime = dayjs().format('YYYY-MM-DD HH:mm:ss').toString();
-            const status = 0;
+            const serviceId = req.body.serviceId;
+            const status = "ISSUED";
             const counterId = 0;
-            const ticketId =  await TicketManager.defineTicket(createTime, service.ServiceId, status, counterId)
+            const ticket =  await TicketManager.defineTicket(createTime, serviceId, status, counterId)
 
-            return res.status(201).json({ ticketId: ticketId });
+            return res.status(201).json({ ticket });
 
         } catch (exception) {
-            return res.status(503).json({ error: 'Something went wrong, try again', exc: `${exception}` });
+            const errorCode = exception.code ?? 503;
+            const errorMessage = exception.result ?? 'Something went wrong, try again';
+            return res.status(errorCode).json({ error: errorMessage });
         }
 
     }

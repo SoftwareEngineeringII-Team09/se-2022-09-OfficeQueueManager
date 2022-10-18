@@ -56,6 +56,10 @@ class CounterManager {
 
     return PersistentManager.delete(Counter.tableName, "CounterId", CounterId);
   }
+
+  async loadAllCountersByAttribute(counterParameterName, value) {
+    return PersistentManager.loadAllByAttribute(Counter.tableName, counterParameterName, value);
+  }
 }
 
 module.exports = new CounterManager();
