@@ -43,7 +43,7 @@ class TicketManager {
       return Promise.reject(
         {
           code: 404,
-          result: "Ticket table is empty",
+          result: `No available Ticket with ${ticketParameterName} = ${value}`
         });
     }
 
@@ -52,29 +52,57 @@ class TicketManager {
 
 
   async getNextTicket(counterId) {
+    // Retrieving list of serviceId associated to counterId
     let services = await CounterManager.loadAllCountersByAttribute("CounterId", counterId)
       .then((counters) => counters.map(counter => counter.ServiceId));
-    let sortedQueues = await Promise.all(services.map(serviceId => this.loadAllTicketsByAttribute("ServiceId", serviceId)))
-      .then((queues) => {
-        queues.sort((q1, q2) => q2.length - q1.length).forEach(q => q.sort((t1, t2) => t1.TicketId - t2.TicketId));
-        return queues.filter((queue, _index, queues) => queue.length === queues[0].length);
-      });
 
-    if (sortedQueues.length === 1)
-      return Promise.resolve(sortedQueues[0][0]);
+    // Retrieving list of tickets (queue) for each serviceId
+    let queues = [];
+    for (const serviceId of services) {
+      await this.loadAllTicketsByAttribute("ServiceId", serviceId)
+        .then((queue) => {
+          queue = queue.filter(ticket => ticket.Status === "issued");
+          if (queue.length !== 0) {
+            queues.push(queue)
+          }
+        })
+        .catch((exception) => {
+          if (exception.code !== 404)
+            Promise.reject(exception);
+        });
+    }
+
+    // Sorting the queues by length and extracting only the ones with max length. Also handling the case where the queues are empty 
+    queues.sort((q1, q2) => q2.length - q1.length).forEach(q => q.sort((t1, t2) => t1.TicketId - t2.TicketId));
+    let sortedQueues = queues.filter((queue, index, queues) => queue.length === queues[0].length);
+    if (sortedQueues.length === 0) {
+      return Promise.reject(
+        {
+          code: 404,
+          result: "Empty queues"
+        });
+    }
+
+    // Handling case of 1 queue and case of 2 or more queues
+    let nextTicket = {};
+    if (sortedQueues.length === 1) {
+      nextTicket = sortedQueues[0][0];
+    }
     else {
       let lowestServiceTime = Number.POSITIVE_INFINITY;
-      let lowestServiceTimeTicket = {};
       let tickets = sortedQueues.map((queue) => queue[0]);
-      for (const ticket of tickets) {
-        let serviceTime = await ServiceManager.serviceRowByAttribute("ServiceId", ticket.ServiceId).then((service) => service.ServiceTime);
+      for (const t of tickets) {
+        let serviceTime = await ServiceManager.serviceRowByAttribute("ServiceId", t.ServiceId).then((service) => service.ServiceTime);
         if (serviceTime < lowestServiceTime) {
           lowestServiceTime = serviceTime;
-          lowestServiceTimeTicket = ticket;
+          nextTicket = t;
         }
       }
-      return Promise.resolve(lowestServiceTimeTicket);
     }
+
+    // Updating status of nextTicket to "closed"
+    this.updateTicketStatus(nextTicket.TicketId, "closed");
+    return Promise.resolve(nextTicket);
   }
 }
 
