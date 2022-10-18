@@ -37,9 +37,11 @@ describe("Add Counter", () => {
   });
 
   test("delete Counter", async () => {
+    let error = {
+      code: 422,
+      result: "No available Counter found ",
+    };
     await CounterManager.deleteCounter(CounterId);
-    expect(CounterManager.deleteCounter(CounterId)).rejects.toEqual(
-      "422 No available Counter found "
-    );
+    expect(CounterManager.deleteCounter(CounterId)).rejects.toEqual(error);
   });
 });
