@@ -75,6 +75,19 @@ class ServiceManager {
 
     return PersistentManager.loadOneByAttribute(Service.tableName, serviceParameterName, value);
   }
+
+  async loadAllServices() {
+    let services = await PersistentManager.loadAllRows(Service.tableName);
+    if (services.length === 0) {
+      return Promise.reject(
+        {
+          code: 404,
+          result: "Service table is empty",
+        });
+    }
+
+    return Promise.resolve(services);
+  }
 }
 
 module.exports = new ServiceManager();

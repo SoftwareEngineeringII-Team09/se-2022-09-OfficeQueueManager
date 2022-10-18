@@ -25,8 +25,10 @@ app.use(cors({
 
 /* ROUTES */
 const ticketRouter = require('./routes/ticket.router');
+const serviceRouter = require('./routes/service.router');
 
 app.use(`${API_PREFIX}/tickets`, ticketRouter);
+app.use(`${API_PREFIX}/services`, serviceRouter);
 
 
 /* Serve requests */
