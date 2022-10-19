@@ -75,7 +75,7 @@ class TicketManager {
   async getNextTicket(counterId) {
     // Updating oldTicket status to "closed"
     let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId)
-      .then((tickets) => tickets.filter((ticket) => ticket.Status === "issued")[0])
+      .then((tickets) => tickets.filter((ticket) => ticket.Status === "served")[0])
       .catch((exception) => {
         if (exception.code !== 404)
           Promise.reject(exception);
@@ -132,16 +132,19 @@ class TicketManager {
       }
     }
 
-    // Updating nexTicket CounterId to counterId
+    // Updating nexTicket CounterId to counterId and Status to "served"
     nextTicket.CounterId = counterId;
+    nextTicket.CounterId = "served";
     await this.updateTicketCounter(nextTicket.TicketId, counterId);
+    await this.updateTicketStatus(nextTicket.TicketId, "served");
+    
     return Promise.resolve(nextTicket);
   }
 
   async getWaitingTime(ticket) {
     let serviceId = ticket.ServiceId;
     let Tr = await ServiceManager.serviceRowByAttribute("ServiceId", serviceId).then((service) => service.ServiceTime);      
-    let Nr = await this.loadAllTicketsByAttribute("ServiceId", serviceId).then((queueNr) => queueNr.length-1);
+    let Nr = await this.loadAllTicketsByAttribute("ServiceId", serviceId).then((queueNr) => queueNr.filter(ticket => ticket.Status === "issued").length-1);
     let counters = await CounterManager.loadAllCounters(); 
     let counterServiceIds = counters.reduce((prev, cur) => {
       prev[cur.CounterId] = prev[cur.CounterId] || [];

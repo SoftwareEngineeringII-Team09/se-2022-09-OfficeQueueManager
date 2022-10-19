@@ -219,7 +219,7 @@ Get next customer in line for services provided by a counter.
 		"TicketId": 18,
 		"CreateTime": "2022-10-19 17:42:49",
 		"ServiceId": 1,
-		"Status": "issued",
+		"Status": "served",
 		"CounterId": 1
 	}
 }
@@ -277,7 +277,7 @@ It contains info about tickets.
 TicketId (PRIMARY KEY)
 CreateTime
 ServiceId (FOREIGN KEY REFERENCES Service(ServiceId))
-Status (iussed | closed)
+Status (iussed | served | closed)
 CounterId (FOREIGN KEY REFERENCES Counter(CounterId)) (DEFAULT 0)
 ```
 
