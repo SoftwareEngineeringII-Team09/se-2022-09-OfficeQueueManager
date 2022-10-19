@@ -4,7 +4,7 @@ const Service = require("../dao/model/Service");
 const PersistentManager = require("../dao/PersistentManager");
 
 class ServiceManager {
-  constructor() { }
+  constructor() {}
 
   async defineService(newServiceName, newServiceTime) {
     let exists = await PersistentManager.exists(
@@ -15,7 +15,7 @@ class ServiceManager {
     if (exists) {
       return Promise.reject({
         code: 409,
-        result: "Service Already exists"
+        result: "Service Already exists",
       });
     }
 
@@ -32,7 +32,7 @@ class ServiceManager {
     if (!exists) {
       return Promise.reject({
         code: 404,
-        result: "Service not exists"
+        result: "Service not exists",
       });
     }
 
@@ -53,7 +53,7 @@ class ServiceManager {
     if (!exists) {
       return Promise.reject({
         code: 404,
-        result: "No available Service found"
+        result: "No available Service found",
       });
     }
 
@@ -69,21 +69,40 @@ class ServiceManager {
     if (!exists) {
       return Promise.reject({
         code: 404,
-        result: "No available Service found"
+        result: "No available Service found",
       });
     }
 
-    return PersistentManager.loadOneByAttribute(Service.tableName, serviceParameterName, value);
+    return PersistentManager.loadOneByAttribute(
+      Service.tableName,
+      serviceParameterName,
+      value
+    );
+  }
+
+  async existService(SId) {
+    let exists = await PersistentManager.exists(
+      Service.tableName,
+      "ServiceId",
+      SId
+    );
+    if (!exists) {
+      return Promise.reject({
+        code: 404,
+        result: "No available Service found",
+      });
+    }
+
+    return Promise.resolve(exists);
   }
 
   async loadAllServices() {
     let services = await PersistentManager.loadAllRows(Service.tableName);
     if (services.length === 0) {
-      return Promise.reject(
-        {
-          code: 404,
-          result: "Service table is empty",
-        });
+      return Promise.reject({
+        code: 404,
+        result: "Service table is empty",
+      });
     }
 
     return Promise.resolve(services);

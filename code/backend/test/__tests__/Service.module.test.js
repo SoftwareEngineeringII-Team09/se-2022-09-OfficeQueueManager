@@ -2,7 +2,6 @@ const PersistentManager = require("../../dao/PersistentManager");
 const ServiceManager = require("../../controllers/ServiceManager");
 
 describe("Manage Services", () => {
-  
   let lastId = 0;
   test("defineService", async () => {
     lastId = await ServiceManager.defineService("newService", 30);
@@ -43,8 +42,8 @@ describe("Manage Services", () => {
 
   const error = {
     code: 404,
-    result: "No available Service found"
-  }
+    result: "No available Service found",
+  };
   test("delete Service", async () => {
     await ServiceManager.deleteService(lastId);
     expect(ServiceManager.deleteService(lastId)).rejects.toEqual(error);
