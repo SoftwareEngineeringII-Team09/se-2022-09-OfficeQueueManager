@@ -87,6 +87,7 @@ describe("Test Ticket APIs", function () {
         it('Should call next ticket from longest queue', (done) => {
             const expectedTicket = tickets[1];
             expectedTicket.CounterId = firstCounter;
+            expectedTicket.Status = "served";
             agent.put(`/api/tickets/${firstCounter}`)
             .then(function (res) {
                 res.should.have.status(200);
@@ -99,6 +100,7 @@ describe("Test Ticket APIs", function () {
         it('Should call lowest-service time ticket on equally long queues', (done) => {
             const expectedTicket = tickets[0];
             expectedTicket.CounterId = firstCounter;
+            expectedTicket.Status = "served";
             agent.put(`/api/tickets/${firstCounter}`)
             .then(function (res) {
                 res.should.have.status(200);
@@ -111,6 +113,7 @@ describe("Test Ticket APIs", function () {
         it('Should call next ticket the only remaining ticket', (done) => {
             const expectedTicket = tickets[2];
             expectedTicket.CounterId = firstCounter;
+            expectedTicket.Status = "served";
             agent.put(`/api/tickets/${firstCounter}`)
             .then(function (res) {
                 res.should.have.status(200);

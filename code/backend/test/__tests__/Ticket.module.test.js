@@ -95,17 +95,21 @@ describe("Manage Ticket", () => {
     const ticketToServe1 = await TicketManager.getNextTicket(firstCounterId);
     expect(ticketToServe1).toEqual(tickets[1]);
 
-    // Check status is closed
+    // Check status is served
     const closedTicket1 = await PersistentManager.loadOneByAttribute(Ticket.tableName, "TicketId", SecondTicketId);
-    expect(closedTicket1.Status).toEqual("closed");
+    expect(closedTicket1.Status).toEqual("served");
 
     // Next ticket should be the only one remaining
     const ticketToServe2 = await TicketManager.getNextTicket(firstCounterId);
     expect(ticketToServe2).toEqual(tickets[0]);
 
     // Check status is closed
+    const closedTicket1again = await PersistentManager.loadOneByAttribute(Ticket.tableName, "TicketId", SecondTicketId);
+    expect(closedTicket1again.Status).toEqual("closed");
+
+    // Check status is closed
     const closedTicket2 = await PersistentManager.loadOneByAttribute(Ticket.tableName, "TicketId", FirstTicketId);
-    expect(closedTicket2.Status).toEqual("closed");
+    expect(closedTicket2.Status).toEqual("served");
   });
 
   test("queuesWithDifferentLengths", async () => {
@@ -127,10 +131,12 @@ describe("Manage Ticket", () => {
       TicketId: ThirdTicketId,
       CreateTime: CreateTime,
       ServiceId: firstServiceId,
-      Status: Status,
+      Status: "served",
       CounterId: firstCounterId
     };
     tickets.push(ticket3);
+
+    let previousTicketId = null;
 
     // First serve the oldest ticket from the longest queue (FirstTicketId)
     // Than serve the ticket from the queue with the lowest time (SecondTicketId)
@@ -142,9 +148,17 @@ describe("Manage Ticket", () => {
       const expectedTicket = tickets.find((ticket) => ticket.TicketId === ticketId);
       expect(ticketToServe).toEqual(expectedTicket);
 
-      // Check status is closed
+      // Check current ticket status is served
       const closedTicket = await PersistentManager.loadOneByAttribute(Ticket.tableName, "TicketId", ticketId);
-      expect(closedTicket.Status).toEqual("closed");
+      expect(closedTicket.Status).toEqual("served");
+
+      // Check previous ticket gets closed
+      if (previousTicketId) {
+        const previousTicket = await PersistentManager.loadOneByAttribute(Ticket.tableName, "TicketId", previousTicketId);
+        expect(previousTicket.Status).toEqual("closed");
+      }
+
+      previousTicket = ticketId;
     }
   });
 
@@ -182,14 +196,14 @@ async function defineTickets(servicesId) {
     TicketId: FirstTicketId,
     CreateTime: CreateTime,
     ServiceId: firstServiceId,
-    Status: Status,
+    Status: "served",
     CounterId: firstCounterId
   };
   const ticket2 = {
     TicketId: SecondTicketId,
     CreateTime: secondCreateTime,
     ServiceId: secondServiceId,
-    Status: Status,
+    Status: "served",
     CounterId: firstCounterId
   };
 
