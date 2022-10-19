@@ -73,6 +73,17 @@ class TicketManager {
 
 
   async getNextTicket(counterId) {
+    // Updating oldTicket status to "closed"
+    let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId)
+      .then((tickets) => tickets.filter((ticket) => ticket.Status === "issued")[0])
+      .catch((exception) => {
+        if (exception.code !== 404)
+          Promise.reject(exception);
+      });
+    if (oldTicket) {
+      await this.updateTicketStatus(oldTicket.TicketId, "closed");
+    }
+
     // Retrieving list of serviceId associated to counterId
     let services = await CounterManager.loadAllCountersByAttribute("CounterId", counterId)
       .then((counters) => counters.map(counter => counter.ServiceId));
@@ -121,20 +132,8 @@ class TicketManager {
       }
     }
 
-    nextTicket.CounterId = counterId;
-    let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId)
-      .then((tickets) => tickets.filter((ticket) => ticket.Status === "issued")[0])
-      .catch((exception) => {
-        if (exception.code !== 404)
-          Promise.reject(exception);
-      });
-
-    // Updating status of oldTicket to "closed"
-    if (oldTicket) {
-      await this.updateTicketStatus(oldTicket.TicketId, "closed");
-    }
-
     // Updating nexTicket CounterId to counterId
+    nextTicket.CounterId = counterId;
     await this.updateTicketCounter(nextTicket.TicketId, counterId);
     return Promise.resolve(nextTicket);
   }
