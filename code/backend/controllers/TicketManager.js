@@ -76,6 +76,25 @@ class TicketManager {
       return Promise.resolve(lowestServiceTimeTicket);
     }
   }
+
+  async getWaitingTime(ticket) {
+    let serviceId = ticket.serviceId;
+    let Tr = await ServiceManager.serviceRowByAttribute("ServiceId", serviceId).then((service) => service.ServiceTime);      
+    let Nr = await TicketManager.loadAllTicketsByAttribute("ServiceId", serviceId).then((queueNr) => queueNr.length-1);// -1 ovvero ticket appena generato
+    let counters = await CounterManager.loadAllCounters(); 
+    let counterServiceIds = counters.reduce((prev, cur) => {
+      prev[cur.CounterId] = prev[cur.counterId] || [];
+      prev[cur.CounterId].push(cur.serviceId);
+      return prev;
+    }, {})
+    counters = [...new Set(counters.map(counter => counter.counterId))];
+    let sum = 0;  
+    for (const i of counters) {   
+      sum += (1/counterServiceIds[i].length) * (counterServiceIds[i].includes(serviceId) ? 1 : 0);
+    }
+    let result = Tr * ((Nr/sum) + 0.5);
+    return Promise.resolve(result);         
+  }
 }
 
 module.exports = new TicketManager();
