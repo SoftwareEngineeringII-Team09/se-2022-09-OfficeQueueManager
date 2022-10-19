@@ -37,6 +37,27 @@ class TicketManager {
     );
   }
 
+  async updateTicketCounter(TicketId, newCounter) {
+    let exists = await PersistentManager.exists(
+      Ticket.tableName,
+      "TicketId",
+      TicketId
+    );
+    if (!exists) {
+      return Promise.reject({
+        code: 404,
+        result: "Ticket not exists",
+      });
+    }
+
+    return PersistentManager.update(
+      Ticket.tableName,
+      { CounterId: newCounter },
+      "TicketId",
+      TicketId
+    );
+  }
+
   async loadAllTicketsByAttribute(ticketParameterName, value) {
     const tickets = await PersistentManager.loadAllByAttribute(Ticket.tableName, ticketParameterName, value);
     if (tickets.length === 0) {
@@ -100,9 +121,30 @@ class TicketManager {
       }
     }
 
-    // Updating status of nextTicket to "closed"
-    this.updateTicketStatus(nextTicket.TicketId, "closed");
+    // Updating status of nextTicket to "closed" and CounterId to counterId 
+    nextTicket.CounterId = counterId;
+    await this.updateTicketCounter(nextTicket.TicketId, counterId)
+    await this.updateTicketStatus(nextTicket.TicketId, "closed");
     return Promise.resolve(nextTicket);
+  }
+
+  async getWaitingTime(ticket) {
+    let serviceId = ticket.serviceId;
+    let Tr = await ServiceManager.serviceRowByAttribute("ServiceId", serviceId).then((service) => service.ServiceTime);      
+    let Nr = await TicketManager.loadAllTicketsByAttribute("ServiceId", serviceId).then((queueNr) => queueNr.length-1);// -1 ovvero ticket appena generato
+    let counters = await CounterManager.loadAllCounters(); 
+    let counterServiceIds = counters.reduce((prev, cur) => {
+      prev[cur.CounterId] = prev[cur.counterId] || [];
+      prev[cur.CounterId].push(cur.serviceId);
+      return prev;
+    }, {})
+    counters = [...new Set(counters.map(counter => counter.counterId))];
+    let sum = 0;  
+    for (const i of counters) {   
+      sum += (1/counterServiceIds[i].length) * (counterServiceIds[i].includes(serviceId) ? 1 : 0);
+    }
+    let result = Tr * ((Nr/sum) + 0.5);
+    return Promise.resolve(result);         
   }
 }
 

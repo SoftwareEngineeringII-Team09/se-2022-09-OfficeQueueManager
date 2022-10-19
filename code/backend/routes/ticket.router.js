@@ -24,7 +24,9 @@ router.put(
 
       const ticket = await TicketManager.getNextTicket(counterId);
 
-      return res.status(200).json({ ticket: ticket });
+      const waitingTime = await TicketManager.getWaitingTime(ticket);
+
+      return res.status(200).json({ ticket: ticket, waitingTime });
     } catch (exception) {
       const errorCode = exception.code ?? 500;
       const errorMessage =

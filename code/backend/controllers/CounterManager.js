@@ -69,6 +69,19 @@ class CounterManager {
 
     return Promise.resolve(counters);
   }
+
+  async loadAllCounters() {
+    let counters = await PersistentManager.loadAllRows(Counter.tableName);
+    if (counters.length === 0) {
+      return Promise.reject(
+        {
+          code: 404,
+          result: "Counter table is empty",
+        });
+    }
+
+    return Promise.resolve(counters);
+  }
 }
 
 module.exports = new CounterManager();
