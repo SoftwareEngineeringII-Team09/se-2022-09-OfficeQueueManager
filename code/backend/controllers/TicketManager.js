@@ -122,7 +122,12 @@ class TicketManager {
     }
 
     nextTicket.CounterId = counterId;
-    let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId).then((tickets) => tickets.filter((ticket) => ticket.Status === "issued")[0]);
+    let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId)
+      .then((tickets) => tickets.filter((ticket) => ticket.Status === "issued")[0])
+      .catch((exception) => {
+        if (exception.code !== 404)
+          Promise.reject(exception);
+      });
 
     // Updating status of oldTicket to "closed"
     if (oldTicket) {

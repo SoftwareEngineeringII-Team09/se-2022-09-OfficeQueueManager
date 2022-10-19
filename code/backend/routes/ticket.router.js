@@ -57,7 +57,6 @@ router.put(
 
       return res.status(200).json({ ticket });
     } catch (exception) {
-      console.log(exception)
       const errorCode = exception.code ?? 500;
       const errorMessage =
         exception.result ?? "Something went wrong, try again";
