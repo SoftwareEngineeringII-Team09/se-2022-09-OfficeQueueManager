@@ -73,6 +73,17 @@ class TicketManager {
 
 
   async getNextTicket(counterId) {
+    // Updating oldTicket status to "closed"
+    let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId)
+      .then((tickets) => tickets.filter((ticket) => ticket.Status === "served")[0])
+      .catch((exception) => {
+        if (exception.code !== 404)
+          Promise.reject(exception);
+      });
+    if (oldTicket) {
+      await this.updateTicketStatus(oldTicket.TicketId, "closed");
+    }
+
     // Retrieving list of serviceId associated to counterId
     let services = await CounterManager.loadAllCountersByAttribute("CounterId", counterId)
       .then((counters) => counters.map(counter => counter.ServiceId));
@@ -82,7 +93,7 @@ class TicketManager {
     for (const serviceId of services) {
       await this.loadAllTicketsByAttribute("ServiceId", serviceId)
         .then((queue) => {
-          queue = queue.filter(ticket => ticket.Status === "issued");
+          queue = queue.filter(ticket => ticket.Status === "issued" && ticket.CounterId === 0);
           if (queue.length !== 0) {
             queues.push(queue)
           }
@@ -121,24 +132,26 @@ class TicketManager {
       }
     }
 
-    // Updating status of nextTicket to "closed" and CounterId to counterId 
+    // Updating nexTicket CounterId to counterId and Status to "served"
     nextTicket.CounterId = counterId;
-    await this.updateTicketCounter(nextTicket.TicketId, counterId)
-    await this.updateTicketStatus(nextTicket.TicketId, "closed");
+    nextTicket.CounterId = "served";
+    await this.updateTicketCounter(nextTicket.TicketId, counterId);
+    await this.updateTicketStatus(nextTicket.TicketId, "served");
+    
     return Promise.resolve(nextTicket);
   }
 
   async getWaitingTime(ticket) {
-    let serviceId = ticket.serviceId;
+    let serviceId = ticket.ServiceId;
     let Tr = await ServiceManager.serviceRowByAttribute("ServiceId", serviceId).then((service) => service.ServiceTime);      
-    let Nr = await TicketManager.loadAllTicketsByAttribute("ServiceId", serviceId).then((queueNr) => queueNr.length-1);// -1 ovvero ticket appena generato
+    let Nr = await this.loadAllTicketsByAttribute("ServiceId", serviceId).then((queueNr) => queueNr.filter(ticket => ticket.Status === "issued").length-1);
     let counters = await CounterManager.loadAllCounters(); 
     let counterServiceIds = counters.reduce((prev, cur) => {
-      prev[cur.CounterId] = prev[cur.counterId] || [];
-      prev[cur.CounterId].push(cur.serviceId);
+      prev[cur.CounterId] = prev[cur.CounterId] || [];
+      prev[cur.CounterId].push(cur.ServiceId);
       return prev;
-    }, {})
-    counters = [...new Set(counters.map(counter => counter.counterId))];
+    }, {});
+    counters = [...new Set(counters.map(counter => counter.CounterId))];
     let sum = 0;  
     for (const i of counters) {   
       sum += (1/counterServiceIds[i].length) * (counterServiceIds[i].includes(serviceId) ? 1 : 0);

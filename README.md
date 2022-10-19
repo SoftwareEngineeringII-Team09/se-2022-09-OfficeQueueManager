@@ -12,18 +12,19 @@ This project has been developed by Team-09 for the course of "Software Engineeri
    - [Route `/officer`](#officer)
    - [Route `/*`](#1)
 3. [API Server](#api-server)
-   - [Ticket Routes](#sessions-routes)
-     - [`POST /api/v1/tickets`](#post-apiv1tickets)
-     - [`PUT /api/v1/tickets/:counterId`](#put-apiv1ticketscounterid)
+   - [Ticket Routes](#ticket-routes)
+     - [`GET /api/tickets`](#get-apiservices)
+     - [`POST /api/tickets`](#post-apitickets)
+     - [`PUT /api/tickets/:counterId`](#put-apiticketscounterid)
 4. [Database Tables](#database-tables)
    - [Table `Ticket`](#ticket)
    - [Table `Service`](#service)
    - [Table `Counter`](#counter)
 5. [React Components APIs](#react-components-apis)
    - [`UI Core`](#ui-core)
-        - [Component `Input.Field`](#inputfield)
-        - [Component `Input.Select`](#inputselect)
-        - [Component `Display`](#display)
+     - [Component `Input.Field`](#inputfield)
+     - [Component `Input.Select`](#inputselect)
+     - [Component `Display`](#display)
 6. [Mocks](#mocks)
 
 ## Technologies
@@ -36,7 +37,7 @@ Here the list of dependencies installed:
 
 ```json
 "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.2.0",
+   "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
     "@fortawesome/free-solid-svg-icons": "^6.2.0",
     "@fortawesome/react-fontawesome": "^0.2.0",
@@ -55,6 +56,7 @@ Here the list of dependencies installed:
     "react-router": "^6.4.2",
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
+    "react-toastify": "^9.0.8",
     "sass": "^1.55.0",
     "web-vitals": "^2.1.4"
 }
@@ -67,8 +69,9 @@ The language used is `Javascript` and the framework choosen is `ExpressJS`.
 Here the list of dependencies installed:
 
 ```json
-"dependencies": {
+ "dependencies": {
     "cors": "^2.8.5",
+    "dayjs": "^1.11.5",
     "express": "^4.18.2",
     "express-validator": "^6.14.2",
     "morgan": "^1.10.0",
@@ -123,7 +126,39 @@ Any other route is matched by this one where the application shows an error.
 
 ### **Ticket Routes**
 
-#### `POST /api/v1/tickets`
+#### `GET /api/tickets/:counterId`
+
+Get issued ticket associated to counterId.
+
+**Request header:**
+
+`Content-Type: application/json`
+
+`Params: req.params.counterId to retrieve the id of the counter.`
+
+**Response body**
+
+`HTTP status code 200 OK`
+
+```json
+{
+	"ticket": {
+		"TicketId": 5,
+		"CreateTime": "2022-10-19 17:42:50",
+		"ServiceId": 1,
+		"Status": "issued",
+		"CounterId": 1
+	}
+}
+```
+
+**Error responses**
+
+- `HTTP status code 500 Internal Server Error` (generic server error)
+- `HTTP status code 404 Not Found` (resource not found error)
+- `HTTP status code 422 Unprocessable Entity` (validation error)
+
+#### `POST /api/tickets`
 
 Issues a new ticket for a selected service.
 
@@ -133,11 +168,11 @@ Issues a new ticket for a selected service.
 
 **Request body:**
 
-A JSON object containing the service name.
+A JSON object containing the service id.
 
 ```json
 {
-	"serviceName": "s1Name"
+	"serviceId": 1
 }
 ```
 
@@ -147,16 +182,24 @@ A JSON object containing the service name.
 
 ```json
 {
-	"ticketId": 5,
+	"ticket": {
+		"TicketId": 18,
+		"CreateTime": "2022-10-19 17:42:49",
+		"ServiceId": 1,
+		"Status": "issued",
+		"CounterId": 0
+	},
+	"waitingTime": 45
 }
 ```
 
 **Error responses**
 
 - `HTTP status code 503 Service Unavailable` (generic server error)
+- `HTTP status code 404 Not Found` (resource not found error)
 - `HTTP status code 422 Unprocessable Entity` (validation error)
 
-#### `PUT /api/v1/tickets/:counterId`
+#### `PUT /api/tickets/:counterId`
 
 Get next customer in line for services provided by a counter.
 
@@ -172,15 +215,57 @@ Get next customer in line for services provided by a counter.
 
 ```json
 {
-	// example here
+	"ticket": {
+		"TicketId": 18,
+		"CreateTime": "2022-10-19 17:42:49",
+		"ServiceId": 1,
+		"Status": "served",
+		"CounterId": 1
+	}
 }
 ```
 
 **Error responses**
 
 - `HTTP status code 500 Internal Server Error` (generic server error)
-- `HTTP status code 404 Not Found` (user not found error)
+- `HTTP status code 404 Not Found` (resource not found error)
 - `HTTP status code 422 Unprocessable Entity` (validation error)
+
+### **Service Routes**
+
+#### `GET /api/services`
+
+Get list of all affordable services.
+
+**Request header:**
+
+`Content-Type: application/json`
+
+**Response body**
+
+`HTTP status code 200 OK`
+
+```json
+{
+	"services": [
+		{
+			"ServiceId": 1,
+			"ServiceName": "s1Name",
+			"ServiceTime": 10
+		},
+		{
+			"ServiceId": 2,
+			"ServiceName": "s2Name",
+			"ServiceTime": 20
+		}
+	]
+}
+```
+
+**Error responses**
+
+- `HTTP status code 500 Internal Server Error` (generic server error)
+- `HTTP status code 404 Not Found` (resource not found error)
 
 ## Database Tables
 
@@ -192,7 +277,7 @@ It contains info about tickets.
 TicketId (PRIMARY KEY)
 CreateTime
 ServiceId (FOREIGN KEY REFERENCES Service(ServiceId))
-Status
+Status (iussed | served | closed)
 CounterId (FOREIGN KEY REFERENCES Counter(CounterId)) (DEFAULT 0)
 ```
 
@@ -208,10 +293,10 @@ ServiceTime
 
 #### Preloaded Data
 
-| ServiceId  | ServiceName | ServiceTime |
-| :--------- | :---------- | :---------- |
-| 1          | s1Name      | 10          |
-| 2          | s2Name      | 20          |
+| ServiceId | ServiceName | ServiceTime |
+| :-------- | :---------- | :---------- |
+| 1         | s1Name      | 10          |
+| 2         | s2Name      | 20          |
 
 ### `Counter`
 
@@ -224,11 +309,11 @@ ServiceId (PRIMARY KEY) (FOREIGN KEY REFERENCES Service(ServiceId))
 
 #### Preloaded Data
 
-| CounterId  | ServiceId | 
-| :--------- | :-------- |
-| 1          | 1         |
-| 1          | 2         |
-| 2          | 2         |
+| CounterId | ServiceId |
+| :-------- | :-------- |
+| 1         | 1         |
+| 1         | 2         |
+| 2         | 2         |
 
 ## React Components APIs
 
@@ -240,15 +325,15 @@ _This component is located in_ `components/ui-core/Input.jsx`
 
 It's a styled override of the React-Bootstrap form input field pattern.
 
-| Prop | Type | Description | Required |
-|------|------|-------------|----------|
-|`id`|`String`|The id attribute for the input tag |Recommended|
-|`type`|`String`|The type attribute for the input tag (e.g. Email, Password, Text)|Recommended|
-|`name`|`String`|The name attribute for the input tag|Recommended|
-|`placeholder`|`String`|The placeholder attribute for the input tag|Recommended|
-|`label`|`String`|The label for the input field, shown above the field|Recommended|
-|`className`|`String`|The class attribute for the inside wrapper of the component|No|
-|`children`|`Any`|Text muted for a description or a message, shown below the field|No|
+| Prop          | Type     | Description                                                       | Required    |
+| ------------- | -------- | ----------------------------------------------------------------- | ----------- |
+| `id`          | `String` | The id attribute for the input tag                                | Recommended |
+| `type`        | `String` | The type attribute for the input tag (e.g. Email, Password, Text) | Recommended |
+| `name`        | `String` | The name attribute for the input tag                              | Recommended |
+| `placeholder` | `String` | The placeholder attribute for the input tag                       | Recommended |
+| `label`       | `String` | The label for the input field, shown above the field              | Recommended |
+| `className`   | `String` | The class attribute for the inside wrapper of the component       | No          |
+| `children`    | `Any`    | Text muted for a description or a message, shown below the field  | No          |
 
 #### `Input.Select`
 
@@ -256,15 +341,15 @@ _This component is located in_ `components/ui-core/Input.jsx`
 
 It's a styled override of the React-Bootstrap form select field pattern.
 
-| Prop | Type | Description | Required |
-|------|------|-------------|----------|
-|`id`|`String`|The id attribute for the select tag |Recommended|
-|`name`|`String`|The name attribute for the select tag|Recommended|
-|`defaultValue`|`String`|The label for the default option|Recommended|
-|`options`|`Array[{value: String, label: String}]`|The array of options, where each option is an object with keys value (value attribute of the option tag) and label (label of the option tag that is shown to the user)|Yes|
-|`label`|`String`|The label for the select, shown above the field|Recommended|
-|`className`|`String`|The class attribute for the inside wrapper of the component|No|
-|`children`|`Any`|Text muted for a description or a message, shown below the field|No|
+| Prop           | Type                                    | Description                                                                                                                                                            | Required    |
+| -------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `id`           | `String`                                | The id attribute for the select tag                                                                                                                                    | Recommended |
+| `name`         | `String`                                | The name attribute for the select tag                                                                                                                                  | Recommended |
+| `defaultValue` | `String`                                | The label for the default option                                                                                                                                       | Recommended |
+| `options`      | `Array[{value: String, label: String}]` | The array of options, where each option is an object with keys value (value attribute of the option tag) and label (label of the option tag that is shown to the user) | Yes         |
+| `label`        | `String`                                | The label for the select, shown above the field                                                                                                                        | Recommended |
+| `className`    | `String`                                | The class attribute for the inside wrapper of the component                                                                                                            | No          |
+| `children`     | `Any`                                   | Text muted for a description or a message, shown below the field                                                                                                       | No          |
 
 ### `Display`
 
@@ -272,31 +357,38 @@ _This component is located in_ `components/ui-core/Display.jsx`
 
 It's a component that shows queue info about a service.
 
-| Prop | Type | Description | Required |
-|------|------|-------------|----------|
-|`service`|`{name: String, queue: Array[{code: Number or String, counter: Number or String}]}`|Service data that have to be shown.|Yes|
+| Prop      | Type                                                                                | Description                         | Required |
+| --------- | ----------------------------------------------------------------------------------- | ----------------------------------- | -------- |
+| `service` | `{name: String, queue: Array[{code: Number or String, counter: Number or String}]}` | Service data that have to be shown. | Yes      |
 
 ## Mocks
 
 ### Homepage
+
 ![Home](./doc/mocks/export/Homepage/Home.png)
 ![Home-Ticket](./doc/mocks/export/Homepage/Home%20%E2%80%93%20Ticket.png)
 
 ### Login page
+
 ![Login](./doc/mocks/export/Login.png)
 
 ### Officer page
+
 ![Officer](./doc/mocks/export/Officer.png)
 
 ### Manager pages
+
 #### Statistics pages
+
 ![Manager-Stats](./doc/mocks/export/Manager/Stats/Manager%20-%20Stats.png)
 ![Manager-Stats](./doc/mocks/export/Manager/Stats/Manager%20-%20Stats%20%E2%80%93%201.png)
 ![Manager-Stats](./doc/mocks/export/Manager/Stats/Manager%20-%20Stats%20%E2%80%93%202.png)
 ![Manager-Stats](./doc/mocks/export/Manager/Stats/Manager%20-%20Stats%20%E2%80%93%203.png)
 ![Manager-Stats](./doc/mocks/export/Manager/Stats/Manager%20-%20Stats%20%E2%80%93%204.png)
 ![Manager-Stats](./doc/mocks/export/Manager/Stats/Manager%20-%20Stats%20%E2%80%93%205.png)
+
 #### Counters Configuration pages
+
 ![Manager-Config](./doc/mocks/export/Manager/Counters%20Configuration/Manager%20-%20Configuration.png)
-![Manager-Config](./doc/mocks/export/Manager/Counters%20Configuration/Manager%20-%20Configuration%20(Add).png)
-![Manager-Config](./doc/mocks/export/Manager/Counters%20Configuration/Manager%20-%20Configuration%20(Delete).png)
+![Manager-Config](<./doc/mocks/export/Manager/Counters%20Configuration/Manager%20-%20Configuration%20(Add).png>)
+![Manager-Config](<./doc/mocks/export/Manager/Counters%20Configuration/Manager%20-%20Configuration%20(Delete).png>)

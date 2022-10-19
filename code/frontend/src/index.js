@@ -6,6 +6,7 @@ import './scss/index.scss';
 import App from './App';
 
 import { BrowserRouter } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faChartPie, faGear, faRightFromBracket, faCalendar } from '@fortawesome/free-solid-svg-icons'
@@ -15,6 +16,7 @@ library.add(faChartPie, faGear, faRightFromBracket, faCalendar);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <ToastContainer newestOnTop={false} />
     <BrowserRouter>
       <App />
     </BrowserRouter>
