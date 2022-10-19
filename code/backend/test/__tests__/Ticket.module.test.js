@@ -2,14 +2,13 @@ const PersistentManager = require("../../dao/PersistentManager");
 const TicketManager = require("../../controllers/TicketManager");
 
 describe("Add Ticket", () => {
-  const CreateTime = "19/10/2021 08:09:20";
+  const CreateTime = "2021-11-11 08:09:20";
   const ServiceId = 1;
-  const Status = "open";
-  const CounterId = 1;
-  let lastId = 0;
+  const Status = "issued";
+  const CounterId = 0;
 
   test("defineTicket", async () => {
-    lastId = await TicketManager.defineTicket(
+    lastTicket = await TicketManager.defineTicket(
       CreateTime,
       ServiceId,
       Status,
@@ -18,11 +17,11 @@ describe("Add Ticket", () => {
     const newTicket = await PersistentManager.loadOneByAttribute(
       "Ticket",
       "TicketId",
-      lastId
+      lastTicket.TicketId
     );
 
     const expected = {
-      TicketId: lastId,
+      TicketId: lastTicket.TicketId,
       CreateTime: CreateTime,
       ServiceId: ServiceId,
       Status: Status,
@@ -34,14 +33,14 @@ describe("Add Ticket", () => {
   test("updateTicketStatus", async () => {
     const updateStatus = "closed";
 
-    await TicketManager.updateTicketStatus(lastId, updateStatus);
+    await TicketManager.updateTicketStatus(lastTicket.TicketId, updateStatus);
     const updateTicket = await PersistentManager.loadOneByAttribute(
       "Ticket",
       "TicketId",
-      lastId
+      lastTicket.TicketId
     );
     const expected = {
-      TicketId: lastId,
+      TicketId: lastTicket.TicketId,
       CreateTime: CreateTime,
       ServiceId: ServiceId,
       Status: updateStatus,
