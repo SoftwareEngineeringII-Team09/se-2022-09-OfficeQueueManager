@@ -37,6 +37,27 @@ class TicketManager {
     );
   }
 
+  async updateTicketCounter(TicketId, newCounter) {
+    let exists = await PersistentManager.exists(
+      Ticket.tableName,
+      "TicketId",
+      TicketId
+    );
+    if (!exists) {
+      return Promise.reject({
+        code: 404,
+        result: "Ticket not exists",
+      });
+    }
+
+    return PersistentManager.update(
+      Ticket.tableName,
+      { CounterId: newCounter },
+      "TicketId",
+      TicketId
+    );
+  }
+
   async loadAllTicketsByAttribute(ticketParameterName, value) {
     const tickets = await PersistentManager.loadAllByAttribute(Ticket.tableName, ticketParameterName, value);
     if (tickets.length === 0) {
@@ -100,8 +121,10 @@ class TicketManager {
       }
     }
 
-    // Updating status of nextTicket to "closed"
-    this.updateTicketStatus(nextTicket.TicketId, "closed");
+    // Updating status of nextTicket to "closed" and CounterId to counterId 
+    nextTicket.CounterId = counterId;
+    await this.updateTicketCounter(nextTicket.TicketId, counterId)
+    await this.updateTicketStatus(nextTicket.TicketId, "closed");
     return Promise.resolve(nextTicket);
   }
 }
