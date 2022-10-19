@@ -51,9 +51,9 @@ router.post(
 
             const createTime = dayjs().format('YYYY-MM-DD HH:mm:ss').toString();
             const serviceId = req.body.serviceId;
-            const status = "ISSUED";
+            const status = "issued";
             const counterId = 0;
-            const ticket =  await TicketManager.defineTicket(createTime, serviceId, status, counterId)
+            const ticket =  await TicketManager.defineTicket(createTime, serviceId, status, counterId);
 
             return res.status(201).json({ ticket });
 

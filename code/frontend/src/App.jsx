@@ -1,23 +1,21 @@
-import { Routes, Route } from 'react-router-dom';
-import { Container, Row } from 'react-bootstrap';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import * as Pages from './pages';
 
 import { UI } from './components';
 
 function App() {
+  const location = useLocation();
+  const serviceList = ['service1', 'service2'];
+
   return (
-
-    <Container fluid>
-      <Row>
-        <UI.Header />
-      </Row>
-      <Routes>
-        <Route index path='/' element={<Pages.Home />} />
+    <Routes location={location} key={location.pathname}>
+      <Route element={<UI.Layout />}>
+        <Route path='/officer' element={<Pages.Officer />} />
+        <Route index path='/' element={<Pages.Home serviceList={serviceList} />} />
         <Route path='*' element={<Pages.Default />} />
-      </Routes>
-    </Container>
-
+      </Route>
+    </Routes>
   );
 }
 
