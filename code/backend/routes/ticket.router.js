@@ -7,6 +7,36 @@ const express = require("express");
 const router = express.Router();
 const dayjs = require("dayjs");
 
+/* Get "issued" ticket associated to counterId */
+router.get(
+  '/:counterId',
+  param("counterId")
+    .isInt({ min: 1 })
+    .toInt()
+    .withMessage("Provide a valid counter id"),
+  async (req, res) => {
+    try {
+      // Check for parameter validation errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty())
+        return res.status(422).json({ error: errors.array()[0] });
+
+      let tickets = await TicketManager.loadAllTicketsByAttribute("CounterId", req.params.counterId);
+      let ticket = tickets.filter(ticket => ticket.Status === "issued")[0];
+
+      if (!ticket) {
+        return res.status(404).json({ error: `No available Ticket with CounterId = ${req.params.counterId} and Status = issued` });
+      }
+
+      return res.status(200).json({ ticket });
+    } catch (exception) {
+      const errorCode = exception.code ?? 500;
+      const errorMessage = exception.result ?? 'Something went wrong, try again';
+      return res.status(errorCode).json({ error: errorMessage });
+    }
+  }
+);
+
 /* Select next ticket for counter :counterId */
 router.put(
   "/:counterId",
@@ -27,6 +57,7 @@ router.put(
 
       return res.status(200).json({ ticket });
     } catch (exception) {
+      console.log(exception)
       const errorCode = exception.code ?? 500;
       const errorMessage =
         exception.result ?? "Something went wrong, try again";

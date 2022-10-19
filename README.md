@@ -123,7 +123,37 @@ Any other route is matched by this one where the application shows an error.
 
 ### **Ticket Routes**
 
-#### `POST /api/v1/tickets`
+#### `GET /api/tickets/:counterId`
+
+Get issued ticket associated to counterId.
+
+**Request header:**
+
+`Content-Type: application/json`
+
+**Response body**
+
+`HTTP status code 200 OK`
+
+```json
+{
+   "ticket": {
+      "TicketId": 5,
+      "CreateTime": "2022-10-19 17:42:50",
+      "ServiceId": 1,
+      "Status": "issued",
+      "CounterId": 1
+   }
+}
+```
+
+**Error responses**
+
+- `HTTP status code 500 Internal Server Error` (generic server error)
+- `HTTP status code 404 Not Found` (resource not found error)
+- `HTTP status code 422 Unprocessable Entity` (validation error)
+
+#### `POST /api/tickets`
 
 Issues a new ticket for a selected service.
 
@@ -133,11 +163,11 @@ Issues a new ticket for a selected service.
 
 **Request body:**
 
-A JSON object containing the service name.
+A JSON object containing the service id.
 
 ```json
 {
-	"serviceName": "s1Name"
+   "serviceId": 1
 }
 ```
 
@@ -147,16 +177,24 @@ A JSON object containing the service name.
 
 ```json
 {
-	"ticketId": 5,
+   "ticket": {
+      "TicketId": 18,
+      "CreateTime": "2022-10-19 17:42:49",
+      "ServiceId": 1,
+      "Status": "issued",
+      "CounterId": 0
+   },
+   "waitingTime": 45
 }
 ```
 
 **Error responses**
 
 - `HTTP status code 503 Service Unavailable` (generic server error)
+- `HTTP status code 404 Not Found` (resource not found error)
 - `HTTP status code 422 Unprocessable Entity` (validation error)
 
-#### `PUT /api/v1/tickets/:counterId`
+#### `PUT /api/tickets/:counterId`
 
 Get next customer in line for services provided by a counter.
 
@@ -172,15 +210,57 @@ Get next customer in line for services provided by a counter.
 
 ```json
 {
-	// example here
+   "ticket": {
+      "TicketId": 18,
+      "CreateTime": "2022-10-19 17:42:49",
+      "ServiceId": 1,
+      "Status": "issued",
+      "CounterId": 1
+   }
 }
 ```
 
 **Error responses**
 
 - `HTTP status code 500 Internal Server Error` (generic server error)
-- `HTTP status code 404 Not Found` (user not found error)
+- `HTTP status code 404 Not Found` (resource not found error)
 - `HTTP status code 422 Unprocessable Entity` (validation error)
+
+### **Service Routes**
+
+#### `GET /api/services`
+
+Get list of all affordable services.
+
+**Request header:**
+
+`Content-Type: application/json`
+
+**Response body**
+
+`HTTP status code 200 OK`
+
+```json
+{
+   "services": [
+      {
+         "ServiceId": 1,
+         "ServiceName": "s1Name",
+         "ServiceTime": 10
+      },
+      {
+         "ServiceId": 2,
+         "ServiceName": "s2Name",
+         "ServiceTime": 20
+      }
+   ]
+}
+```
+
+**Error responses**
+
+- `HTTP status code 500 Internal Server Error` (generic server error)
+- `HTTP status code 404 Not Found` (resource not found error)
 
 ## Database Tables
 

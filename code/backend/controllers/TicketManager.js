@@ -82,7 +82,7 @@ class TicketManager {
     for (const serviceId of services) {
       await this.loadAllTicketsByAttribute("ServiceId", serviceId)
         .then((queue) => {
-          queue = queue.filter(ticket => ticket.Status === "issued");
+          queue = queue.filter(ticket => ticket.Status === "issued" && ticket.CounterId === 0);
           if (queue.length !== 0) {
             queues.push(queue)
           }
@@ -121,10 +121,16 @@ class TicketManager {
       }
     }
 
-    // Updating status of nextTicket to "closed" and CounterId to counterId 
     nextTicket.CounterId = counterId;
-    await this.updateTicketCounter(nextTicket.TicketId, counterId)
-    await this.updateTicketStatus(nextTicket.TicketId, "closed");
+    let oldTicket = await this.loadAllTicketsByAttribute("CounterId", counterId).then((tickets) => tickets.filter((ticket) => ticket.Status === "issued")[0]);
+
+    // Updating status of oldTicket to "closed"
+    if (oldTicket) {
+      await this.updateTicketStatus(oldTicket.TicketId, "closed");
+    }
+
+    // Updating nexTicket CounterId to counterId
+    await this.updateTicketCounter(nextTicket.TicketId, counterId);
     return Promise.resolve(nextTicket);
   }
 
