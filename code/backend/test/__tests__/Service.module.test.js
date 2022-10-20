@@ -1,8 +1,16 @@
 const PersistentManager = require("../../dao/PersistentManager");
 const ServiceManager = require("../../controllers/ServiceManager");
+const {clearAll} = require("../utils");
 
 describe("Manage Services", () => {
+
+  /* Test Setup */
+  beforeAll(clearAll);
+  /* Test Teardown */
+  afterAll(clearAll);
+
   let lastId = 0;
+  
   test("defineService", async () => {
     lastId = await ServiceManager.defineService("newService", 30);
     const newSer = await PersistentManager.loadOneByAttribute(

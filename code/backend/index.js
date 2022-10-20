@@ -1,7 +1,7 @@
 "use strict";
 
 const express = require('express');
-const morgan = require('morgan');
+const logger = require('morgan');
 const cors = require('cors');
 
 
@@ -11,8 +11,8 @@ const API_PREFIX = '/api';
 const app = new express();
 
 
-/* HTTP logger middleware */
-app.use(morgan("combined"));
+/* HTTP logger middleware, don't log during integration tests */
+app.use(logger("combined", { skip: () => process.env.NODE_ENV === 'test' }));
 
 /* JSON */
 app.use(express.json());

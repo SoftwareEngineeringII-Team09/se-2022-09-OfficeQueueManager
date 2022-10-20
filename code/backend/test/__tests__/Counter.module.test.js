@@ -1,10 +1,18 @@
 const PersistentManager = require("../../dao/PersistentManager");
 const CounterManager = require("../../controllers/CounterManager");
+const {clearAll} = require("../utils");
 
 describe("Add Counter", () => {
+
+  /* Test Setup */
+  beforeAll(clearAll);
+  /* Test Teardown */
+  afterAll(clearAll);
+
   let lastId = 0;
   let CounterId = 10;
   let ServiceId = 10;
+  
   test("defineCounter", async () => {
     lastId = await CounterManager.defineCounter(CounterId, ServiceId);
     const newCounter = await PersistentManager.loadOneByAttribute(

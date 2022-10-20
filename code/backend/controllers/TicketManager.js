@@ -134,7 +134,7 @@ class TicketManager {
 
     // Updating nexTicket CounterId to counterId and Status to "served"
     nextTicket.CounterId = counterId;
-    nextTicket.CounterId = "served";
+    nextTicket.Status = "served";
     await this.updateTicketCounter(nextTicket.TicketId, counterId);
     await this.updateTicketStatus(nextTicket.TicketId, "served");
     
