@@ -27,7 +27,10 @@ class CounterManager {
       CounterId
     );
     if (!exists) {
-      return Promise.reject("404 Counter not exists");
+      return Promise.reject({
+        code: 404,
+        result: "Counter not exists",
+      });
     }
 
     return PersistentManager.update(
@@ -45,10 +48,39 @@ class CounterManager {
       CounterId
     );
     if (!exists) {
-      return Promise.reject("422 No available Counter found ");
+      return Promise.reject({
+        code: 422,
+        result: "No available Counter found ",
+      });
     }
 
     return PersistentManager.delete(Counter.tableName, "CounterId", CounterId);
+  }
+
+  async loadAllCountersByAttribute(counterParameterName, value) {
+    const counters = await PersistentManager.loadAllByAttribute(Counter.tableName, counterParameterName, value);
+    if (counters.length === 0) {
+      return Promise.reject(
+        {
+          code: 404,
+          result: `No available Counter with ${counterParameterName} = ${value}`
+        });
+    }
+
+    return Promise.resolve(counters);
+  }
+
+  async loadAllCounters() {
+    let counters = await PersistentManager.loadAllRows(Counter.tableName);
+    if (counters.length === 0) {
+      return Promise.reject(
+        {
+          code: 404,
+          result: "Counter table is empty",
+        });
+    }
+
+    return Promise.resolve(counters);
   }
 }
 

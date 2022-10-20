@@ -1,8 +1,16 @@
 const PersistentManager = require("../../dao/PersistentManager");
 const ServiceManager = require("../../controllers/ServiceManager");
+const {clearAll} = require("../utils");
 
-describe("Add Service", () => {
+describe("Manage Services", () => {
+
+  /* Test Setup */
+  beforeAll(clearAll);
+  /* Test Teardown */
+  afterAll(clearAll);
+
   let lastId = 0;
+  
   test("defineService", async () => {
     lastId = await ServiceManager.defineService("newService", 30);
     const newSer = await PersistentManager.loadOneByAttribute(
@@ -40,10 +48,12 @@ describe("Add Service", () => {
     expect(updateSer).toEqual(expected);
   });
 
+  const error = {
+    code: 404,
+    result: "No available Service found",
+  };
   test("delete Service", async () => {
     await ServiceManager.deleteService(lastId);
-    expect(ServiceManager.deleteService(lastId)).rejects.toEqual(
-      "422 No available Service found "
-    );
+    expect(ServiceManager.deleteService(lastId)).rejects.toEqual(error);
   });
 });

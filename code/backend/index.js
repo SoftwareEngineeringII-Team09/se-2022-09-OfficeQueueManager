@@ -1,18 +1,18 @@
 "use strict";
 
 const express = require('express');
-const morgan = require('morgan');
+const logger = require('morgan');
 const cors = require('cors');
 
 
 const SERVER_PORT = 3001;
 const CLIENT_PORT = 3000;
-const API_PREFIX = '/api/v1';
+const API_PREFIX = '/api';
 const app = new express();
 
 
-/* HTTP logger middleware */
-app.use(morgan("combined"));
+/* HTTP logger middleware, don't log during integration tests */
+app.use(logger("combined", { skip: () => process.env.NODE_ENV === 'test' }));
 
 /* JSON */
 app.use(express.json());
@@ -24,9 +24,11 @@ app.use(cors({
 }));
 
 /* ROUTES */
-const exampleRouter = require('./routes/example.router');
+const ticketRouter = require('./routes/ticket.router');
+const serviceRouter = require('./routes/service.router');
 
-app.use(`${API_PREFIX}/example`, exampleRouter);
+app.use(`${API_PREFIX}/tickets`, ticketRouter);
+app.use(`${API_PREFIX}/services`, serviceRouter);
 
 
 /* Serve requests */
