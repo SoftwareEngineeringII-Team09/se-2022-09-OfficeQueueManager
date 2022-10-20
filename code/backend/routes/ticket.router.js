@@ -7,7 +7,7 @@ const express = require("express");
 const router = express.Router();
 const dayjs = require("dayjs");
 
-/* Get "issued" ticket associated to counterId */
+/* Get "served" ticket associated to counterId */
 router.get(
   '/:counterId',
   param("counterId")
@@ -22,7 +22,7 @@ router.get(
         return res.status(422).json({ error: errors.array()[0] });
 
       let tickets = await TicketManager.loadAllTicketsByAttribute("CounterId", req.params.counterId);
-      let ticket = tickets.filter(ticket => ticket.Status === "issued")[0];
+      let ticket = tickets.filter(ticket => ticket.Status === "served")[0];
 
       if (!ticket) {
         return res.status(404).json({ error: `No available Ticket with CounterId = ${req.params.counterId} and Status = issued` });

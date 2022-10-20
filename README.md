@@ -128,7 +128,7 @@ Any other route is matched by this one where the application shows an error.
 
 #### `GET /api/tickets/:counterId`
 
-Get issued ticket associated to counterId.
+Get served ticket associated to counterId.
 
 **Request header:**
 
